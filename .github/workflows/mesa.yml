@@ -35,6 +35,33 @@ jobs:
           T212_SECRET: ${{ secrets.T212_SECRET }}
           T212_MODO: ${{ vars.T212_MODO }}
 
+      - name: Avisar no telemóvel
+        env:
+          NTFY_TOPICO: ${{ secrets.NTFY_TOPICO }}
+        run: |
+          [ -z "$NTFY_TOPICO" ] && exit 0
+          git diff --quiet -- historico.json && exit 0
+          python - <<'PY' || true
+          import json, os, requests
+          h = json.load(open("historico.json", encoding="utf-8"))[-1]
+          nomes = {"grafico": "Gráfico", "noticias": "Notícias", "macro": "Macro",
+                   "risco": "Risco", "diabo": "Advogado do diabo"}
+          gasto = h.get("gasto") or 0
+          if gasto:
+              titulo, prio, tags = f"Mesa comprou {gasto:.2f} €".replace(".", ","), 4, ["moneybag"]
+          else:
+              titulo, prio, tags = f"Mesa: {h['decisao']}", 3, ["robot"]
+          linhas = [f"{h['data']} · {h['regra']}", ""]
+          linhas += [f"{nomes.get(k, k)}: {v['voto']}" for k, v in h["votos"].items()]
+          linhas += ["", f"Trading 212: {h.get('ordem', '—')}"]
+          dono, nome = os.environ["GITHUB_REPOSITORY"].split("/")
+          r = requests.post("https://ntfy.sh/", timeout=15, json={
+              "topic": os.environ["NTFY_TOPICO"], "title": titulo,
+              "message": "\n".join(linhas), "priority": prio, "tags": tags,
+              "click": f"https://{dono}.github.io/{nome}/"})
+          print("Aviso enviado:", r.status_code)
+          PY
+
       - name: Guardar decisão e painel
         run: |
           git config user.name "mesa-bot"
