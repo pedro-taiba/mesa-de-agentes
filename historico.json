@@ -1,0 +1,33 @@
+[
+ {
+  "data": "2026-09-29",
+  "fecho": 169.4,
+  "decisao": "Comprar",
+  "regra": "5 de 5 votaram comprar",
+  "compras": 5,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis. Retorno positivo em 20d. Volatilidade controlada."
+   },
+   "noticias": {
+    "voto": "comprar",
+    "motivo": "Notícias mistas com viés positivo. Setores defensivos ganham (farmácia, minerais críticos), tech recupera, Nokia retorna ao índice."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX baixo (16.24), juros estáveis, quinta-feira favorável para risco."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Acima das médias móveis, volatilidade controlada 9.7%, perto da máxima recente. Posição saudável."
+   },
+   "diabo": {
+    "voto": "comprar",
+    "motivo": "Maioria alinhada. Única ressalva: volume abaixo da média (0.87) sugere fraco conviction compradores."
+   }
+  },
+  "ordem": "Simulação: compraria 1,10 € (mesa votou comprar)",
+  "gasto": 0
+ }
+]
