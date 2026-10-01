@@ -1,0 +1,4 @@
+anthropic>=0.40
+yfinance>=0.2.40
+pandas
+requests
