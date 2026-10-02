@@ -29,5 +29,36 @@
   },
   "ordem": "Simulação: compraria 1,10 € (mesa votou comprar)",
   "gasto": 0
+ },
+ {
+  "data": "2026-09-30",
+  "fecho": 169.78,
+  "decisao": "Comprar",
+  "regra": "4 de 5 votaram comprar",
+  "compras": 4,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis, momentum positivo 20d, volume elevado, tendência de alta."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes disponíveis para fundamentar decisão de compra ou venda."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX baixo (15.95), juros estáveis, sexta-feira com tendência positiva para carry."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Acima das médias móveis, volatilidade controlada 9.7%, apenas 0.42% da máxima 1a."
+   },
+   "diabo": {
+    "voto": "comprar",
+    "motivo": "Maioria fundamentada. Preço sustentado acima das 3 médias, volume forte, VIX baixo. Risco contido."
+   }
+  },
+  "ordem": "ERRO ao ler a conta (401): \n",
+  "gasto": 0
  }
 ]
