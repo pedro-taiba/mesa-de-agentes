@@ -2,8 +2,8 @@ name: Mesa de agentes
 
 on:
   schedule:
-    # Dias úteis às 08:30 UTC (09:30 em Lisboa no verão), com a bolsa alemã aberta
-    - cron: "30 8 * * 1-5"
+    # Todos os dias às 08:30 UTC (09:30 em Lisboa no verão)
+    - cron: "30 8 * * *"
   workflow_dispatch:
 
 permissions:
@@ -40,20 +40,31 @@ jobs:
           NTFY_TOPICO: ${{ secrets.NTFY_TOPICO }}
         run: |
           [ -z "$NTFY_TOPICO" ] && exit 0
-          git diff --quiet -- historico.json && exit 0
+          if git diff --quiet -- historico.json; then export NOVO=0; else export NOVO=1; fi
           python - <<'PY' || true
-          import json, os, requests
+          import datetime, json, os, requests
+          from zoneinfo import ZoneInfo
           h = json.load(open("historico.json", encoding="utf-8"))[-1]
           nomes = {"grafico": "Gráfico", "noticias": "Notícias", "macro": "Macro",
                    "risco": "Risco", "diabo": "Advogado do diabo"}
+          hist = json.load(open("historico.json", encoding="utf-8"))
+          total = f"{sum(x.get('gasto') or 0 for x in hist):.2f} €".replace(".", ",")
           gasto = h.get("gasto") or 0
-          if gasto:
-              titulo, prio, tags = f"Mesa comprou {gasto:.2f} €".replace(".", ","), 4, ["moneybag"]
+          hoje = datetime.datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%d/%m")
+          a, m, d = h["data"].split("-")
+          if os.environ["NOVO"] == "0":
+              titulo, prio, tags = "Mesa: sem análise nova hoje", 2, ["zzz"]
+              linhas = [f"Hoje {hoje}: bolsa fechada ou ainda sem fecho novo.",
+                        f"Última decisão (fecho {d}/{m}): {h['decisao']}",
+                        f"Total comprado pela mesa: {total}"]
           else:
-              titulo, prio, tags = f"Mesa: {h['decisao']}", 3, ["robot"]
-          linhas = [f"{h['data']} · {h['regra']}", ""]
-          linhas += [f"{nomes.get(k, k)}: {v['voto']}" for k, v in h["votos"].items()]
-          linhas += ["", f"Trading 212: {h.get('ordem', '—')}"]
+              if gasto:
+                  titulo, prio, tags = f"Mesa comprou {gasto:.2f} €".replace(".", ","), 4, ["moneybag"]
+              else:
+                  titulo, prio, tags = f"Mesa: {h['decisao']}", 3, ["robot"]
+              linhas = [f"Análise de {hoje} · último fecho {d}/{m}", h["regra"], ""]
+              linhas += [f"{nomes.get(k, k)}: {v['voto']}" for k, v in h["votos"].items()]
+              linhas += ["", f"Trading 212: {h.get('ordem', '—')}", f"Total comprado: {total}"]
           dono, nome = os.environ["GITHUB_REPOSITORY"].split("/")
           r = requests.post("https://ntfy.sh/", timeout=15, json={
               "topic": os.environ["NTFY_TOPICO"], "title": titulo,
