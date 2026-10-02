@@ -97,7 +97,48 @@ td.num{font-variant-numeric:tabular-nums}
 .office-cap{margin:0;padding:12px 16px;font-size:15px;color:#AEB9C5;border-top:1px solid #222831;background:#0E1116}
 footer{margin-top:28px;font-size:14px;color:var(--muted);max-width:70ch}
 @media (prefers-reduced-motion: reduce){.seat{transition:none}}
+
+/* ---- modo ecrã (segundo monitor): abrir o painel com ?ecra */
+.ecra-only{display:none}
+.modo-link{font:600 13px var(--body);color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.modo-link:hover{border-color:var(--accent)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+html.ecra,html.ecra body{height:100%;overflow:hidden}
+html.ecra .ecra-only{display:block}
+html.ecra .wrap{max-width:none;height:100%;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) clamp(340px,26vw,470px);grid-template-rows:auto auto minmax(0,1fr);gap:12px 16px}
+html.ecra .office{grid-column:1;grid-row:1/4;margin:0;display:flex;flex-direction:column;min-height:0}
+html.ecra .o3d{flex:1;aspect-ratio:auto;min-height:0}
+html.ecra .o-hud{left:18px;right:18px;top:16px}
+html.ecra .o-live{font-size:14px;padding:6px 14px}
+html.ecra .o-dec{font-size:18px;padding:6px 18px}
+html.ecra .o-tag{font-size:13px;padding:4px 9px}
+html.ecra .office-cap{font-size:17px;padding:12px 18px}
+html.ecra header{grid-column:2;margin:0;display:block}
+html.ecra h1{font-size:26px}
+html.ecra .sub,html.ecra .modo-link,html.ecra .tablewrap,html.ecra footer,html.ecra .results h2{display:none}
+html.ecra .relogio{font:700 clamp(40px,4.2vw,64px)/1 var(--display);letter-spacing:-.02em;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+html.ecra .relogio-sub{font-size:14px;color:var(--muted);margin:0 0 8px}
+html.ecra .chamber{grid-column:2;display:block;margin:0}
+html.ecra .stage{padding:8px 12px 12px;border-radius:14px}
+html.ecra .stage svg{max-height:20vh}
+html.ecra .stage .rule{font-size:13px}
+html.ecra .agents{margin-top:10px}
+html.ecra .agent{padding:7px 0}
+html.ecra .agent h3{font-size:16px}
+html.ecra .agent p{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html.ecra .results{grid-column:2;margin:0;min-height:0;display:flex;flex-direction:column}
+html.ecra .lead{font-size:14px;margin:0 0 8px}
+html.ecra .chartbox{flex:1;min-height:0;padding:10px;border-radius:14px;display:flex;flex-direction:column}
+html.ecra #chart{flex:1;min-height:0;height:100%}
+html.ecra .legend{font-size:12px;margin-bottom:4px}
+html.ecra .chartbox[hidden]{display:none}
+html.ecra .results{overflow:hidden}
+@media (max-height:860px){html.ecra .agent p{-webkit-line-clamp:1}html.ecra .relogio{font-size:42px;margin-top:6px}html.ecra .stage svg{max-height:17vh}html.ecra .agent{padding:5px 0}}
+.ecra-full{position:fixed;right:18px;bottom:18px;z-index:5;font-size:15px;padding:10px 16px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+html.ecra.cheio .ecra-full{display:none}
+html.ecra.parado,html.ecra.parado *{cursor:none}
 </style>
+<script>if(/[?&]ecra\b/.test(location.search)){document.documentElement.classList.add("ecra");document.documentElement.dataset.theme="dark";}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
@@ -107,7 +148,12 @@ footer{margin-top:28px;font-size:14px;color:var(--muted);max-width:70ch}
       <h1>Mesa de agentes</h1>
       <p class="sub">Cinco agentes analisam o ETF uma vez por dia, antes da abertura. A mesa só entra se a maioria votar comprar e o agente de risco não vetar. Na Trading 212 a mesa só compra, nunca vende.</p>
     </div>
-    <span class="sample" id="updated"></span>
+    <div class="badges">
+      <span class="sample" id="updated"></span>
+      <a class="modo-link" href="?ecra">Modo ecrã ↗</a>
+    </div>
+    <div class="ecra-only relogio" id="relogio"></div>
+    <p class="ecra-only relogio-sub" id="relogioSub"></p>
   </header>
 
   <div class="office" id="officeBox">
@@ -501,6 +547,36 @@ const DADOS = {"ativo": "VWCE.DE", "ultima": {"data": "2026-09-30", "fecho": 169
       }
     })();
   })();
+})();
+</script>
+<button class="ecra-only ecra-full" id="ecraFull" type="button">Ecrã inteiro</button>
+<script>
+(function(){
+  if(!document.documentElement.classList.contains("ecra")) return;
+  const raiz=document.documentElement;
+  const rel=document.getElementById("relogio"), sub=document.getElementById("relogioSub");
+  const tz={timeZone:"Europe/Lisbon"};
+  function tick(){
+    const n=new Date();
+    rel.textContent=n.toLocaleTimeString("pt-PT",{...tz,hour:"2-digit",minute:"2-digit"});
+    const h=+n.toLocaleString("en-GB",{...tz,hour:"2-digit",hour12:false}), m=+n.toLocaleString("en-GB",{...tz,minute:"2-digit"});
+    const dia=n.toLocaleDateString("pt-PT",{...tz,weekday:"long",day:"2-digit",month:"2-digit"});
+    sub.textContent=dia+" · próxima análise "+((h*60+m)<570?"hoje":"amanhã")+" às 9h30";
+  }
+  tick(); setInterval(tick,1000);
+  // recarrega de 15 em 15 minutos para apanhar a análise nova
+  setTimeout(()=>location.reload(),15*60*1000);
+  // não deixar o ecrã adormecer
+  async function acordado(){try{if("wakeLock" in navigator&&document.visibilityState==="visible") await navigator.wakeLock.request("screen");}catch(e){}}
+  acordado(); document.addEventListener("visibilitychange",acordado);
+  // ecrã inteiro
+  const b=document.getElementById("ecraFull");
+  b.addEventListener("click",()=>{(raiz.requestFullscreen||raiz.webkitRequestFullscreen||function(){}).call(raiz);});
+  document.addEventListener("fullscreenchange",()=>raiz.classList.toggle("cheio",!!document.fullscreenElement));
+  document.addEventListener("dblclick",()=>{if(!document.fullscreenElement) b.click();});
+  // esconder o rato quando está parado
+  let t; function mexeu(){raiz.classList.remove("parado");clearTimeout(t);t=setTimeout(()=>raiz.classList.add("parado"),3000);}
+  document.addEventListener("mousemove",mexeu); mexeu();
 })();
 </script>
 </body>
