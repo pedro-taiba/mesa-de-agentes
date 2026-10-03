@@ -5,7 +5,7 @@ Regra:
   - A mesa decidiu "Comprar"  -> compra VALOR_ORDEM €.
   - Último dia útil do mês e a mesa ainda não comprou nada nesse mês
     -> compra na mesma (o aporte do mês nunca se perde).
-  - Para quando o total gasto pela mesa chegar a MAX_INVESTIDO.
+  - No máximo MAX_POR_MES € por mês (3 compras) e MAX_TOTAL € no total.
 
 Interruptor: só envia ordens se a variável MESA_EXECUTAR = sim.
 Sem isso, apenas escreve o que faria (simulação).
@@ -20,7 +20,8 @@ import requests
 
 ISIN = os.environ.get("MESA_ISIN") or "IE00BK5BQT80"  # Vanguard FTSE All-World Acc (VWCE)
 VALOR_ORDEM = 1.10     # € por compra (a Trading 212 exige cerca de 1 € no mínimo)
-MAX_INVESTIDO = 3.50   # € no total que a mesa pode gastar
+MAX_POR_MES = 3.30     # € por mês (3 compras de 1,10 €)
+MAX_TOTAL = 15.00      # € no total, travão de segurança
 
 EXECUTAR = (os.environ.get("MESA_EXECUTAR") or "").strip().lower() == "sim"
 MODO = (os.environ.get("T212_MODO") or "real").strip().lower()
@@ -50,8 +51,8 @@ def executar(decisao, preco, hist):
     """Devolve (texto para o histórico, valor gasto em €)."""
     hoje = datetime.date.today()
     gasto = sum(h.get("gasto", 0) for h in hist)
-    comprou_este_mes = any(h.get("gasto", 0) > 0 and h["data"][:7] == hoje.strftime("%Y-%m")
-                           for h in hist)
+    gasto_mes = sum(h.get("gasto", 0) for h in hist if h["data"][:7] == hoje.strftime("%Y-%m"))
+    comprou_este_mes = gasto_mes > 0
 
     if decisao == "Comprar":
         motivo = "mesa votou comprar"
@@ -60,8 +61,10 @@ def executar(decisao, preco, hist):
     else:
         return "Sem compra hoje", 0
 
-    if gasto + VALOR_ORDEM > MAX_INVESTIDO + 1e-9:
-        return f"Limite atingido (já gastou {_eur(gasto)}; limite {_eur(MAX_INVESTIDO)})", 0
+    if gasto_mes + VALOR_ORDEM > MAX_POR_MES + 0.05:
+        return f"Limite do mês atingido (já gastou {_eur(gasto_mes)} este mês)", 0
+    if gasto + VALOR_ORDEM > MAX_TOTAL + 1e-9:
+        return f"Limite total atingido (já gastou {_eur(gasto)}; limite {_eur(MAX_TOTAL)})", 0
 
     if not EXECUTAR:
         return f"Simulação: compraria {_eur(VALOR_ORDEM)} ({motivo})", 0

@@ -36,32 +36,44 @@ análise (um dia útil). "comprar" = entrar ou manter a posição hoje.
 "esperar" = ficar fora hoje. "vender" = sinal claramente negativo, ficar fora.
 
 Responda SÓ com um objeto JSON, sem texto antes ou depois:
-{"voto": "comprar" | "esperar" | "vender", "motivo": "uma frase curta em português, até 20 palavras"}"""
+{"voto": "comprar" | "esperar" | "vender", "motivo": "uma frase curta em português, até 25 palavras"}
+
+Se receber "o_seu_historico", é o registo dos seus votos anteriores e do que o ETF fez
+no dia seguinte. Use-o para se calibrar (por exemplo, se costuma errar quando vota
+esperar), mas com poucos dias não tire conclusões fortes."""
 
 AGENTES = [
     ("grafico", "Gráfico",
-     "Você é o analista técnico de uma mesa de investimento. Avalie tendência, "
-     "médias móveis, momentum e volume do ETF com base nos dados recebidos. "
+     "Você é o analista técnico de uma mesa de investimento. Avalie SÓ a tendência: "
+     "posição do preço face às médias móveis, momentum (retornos de 5 e 20 dias) e volume. "
+     "Não comente o risco nem a volatilidade, isso é trabalho de outro agente. "
      "Seja objetivo e não invente dados que não recebeu."),
     ("noticias", "Notícias",
      "Você é o analista de notícias de uma mesa de investimento. Avalie o sentimento "
-     "das manchetes recebidas sobre os mercados de ações. Se não houver manchetes "
+     "das manchetes recebidas sobre os mercados de ações globais. Ignore manchetes sobre "
+     "empresas isoladas que não mexem com o mercado como um todo. Se não houver manchetes "
      "relevantes, vote esperar. Não invente notícias."),
     ("macro", "Macro",
-     "Você é o analista macroeconômico de uma mesa de investimento. Avalie o índice "
-     "de volatilidade VIX, os juros de 10 anos dos EUA e o dia da semana. "
+     "Você é o analista macroeconômico de uma mesa de investimento. Avalie o VIX face à "
+     "sua média de 1 ano e a variação dos juros de 10 anos dos EUA. Um VIX muito acima da "
+     "média ou uma subida brusca de juros é adverso; valores normais não são sinal de nada "
+     "por si só. O dia da semana NÃO é informação útil: nunca o use. "
      "Não invente eventos do calendário que não constem nos dados."),
     ("risco", "Risco",
-     "Você é o gestor de risco de uma mesa de investimento. Avalie a volatilidade, "
-     "a distância da máxima e os movimentos recentes. O seu voto 'vender' funciona "
-     "como veto: use-o só quando o risco de ficar comprado hoje for claramente alto."),
+     "Você é o gestor de risco de uma mesa de investimento. Só recebe dados de risco: "
+     "quedas recentes, maior queda diária, distância da máxima e volatilidade de curto "
+     "prazo comparada com a de médio prazo. Critérios: vote 'vender' (veto) se houver queda "
+     "superior a 3% em 5 dias, queda diária superior a 2% no último dia, ou volatilidade de "
+     "20 dias acima de 1,5 vezes a de 60 dias. Vote 'esperar' se o risco estiver a subir mas "
+     "abaixo desses limites. Vote 'comprar' se nada disso acontecer. Diga qual critério usou."),
 ]
 
 DIABO = ("diabo", "Advogado do diabo",
          "Você é o advogado do diabo de uma mesa de investimento. Recebe os dados e os "
-         "votos dos outros quatro agentes. O seu papel é procurar o melhor argumento "
-         "contra a opinião da maioria. Se mesmo assim a maioria parecer certa, pode "
-         "concordar, mas diga porquê.")
+         "votos dos outros quatro agentes. Primeiro, encontre o argumento MAIS FORTE contra "
+         "a opinião da maioria. Se esse argumento for razoável, vote contra a maioria. Só "
+         "concorde com a maioria se o argumento contra for claramente fraco; nesse caso, o "
+         "motivo tem de dizer qual era o argumento e porque é fraco.")
 
 VOTOS_VALIDOS = {"comprar", "esperar", "vender"}
 
@@ -94,8 +106,6 @@ def dados_mercado():
     return df.index[-1].strftime("%Y-%m-%d"), {
         "ativo": TICKER,
         "data_ultimo_fecho": df.index[-1].strftime("%Y-%m-%d"),
-        "dia_da_semana_hoje": ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"][
-            datetime.date.today().weekday()],
         "fecho": num(c.iloc[-1]),
         "media_20d": num(c.tail(20).mean()),
         "media_50d": num(c.tail(50).mean()),
@@ -110,6 +120,7 @@ def dados_mercado():
         "volatilidade_60d_anual_%": num(rets.tail(60).std() * math.sqrt(252) * 100),
         "volume_vs_media_20d": num(v.iloc[-1] / media_vol) if media_vol else None,
         "ultimos_10_fechos": [num(x) for x in c.tail(10)],
+        "maior_queda_diaria_20d_%": num(rets.tail(20).min() * 100),
     }
 
 
@@ -120,6 +131,8 @@ def dados_macro():
             c = yf.Ticker(t).history(period="1mo")["Close"].dropna()
             out[nome] = num(c.iloc[-1])
             out[nome + "_variacao_5d"] = num(c.iloc[-1] - c.iloc[-6])
+            if nome == "vix":
+                out["vix_media_1a"] = num(yf.Ticker(t).history(period="1y")["Close"].dropna().mean())
         except Exception:
             out[nome] = None
     return out
@@ -162,25 +175,55 @@ def perguntar(cliente, sistema, dados):
         return {"voto": "esperar", "motivo": f"Erro ao consultar o agente ({type(e).__name__}); voto neutro."}
 
 
-def reunir_mesa(mercado):
+TENDENCIA = ("ativo", "data_ultimo_fecho", "fecho", "media_20d", "media_50d", "media_200d",
+             "retorno_5d_%", "retorno_20d_%", "maxima_20d", "minima_20d",
+             "volume_vs_media_20d", "ultimos_10_fechos")
+RISCO = ("ativo", "data_ultimo_fecho", "retorno_1d_%", "retorno_5d_%", "maior_queda_diaria_20d_%",
+         "distancia_da_maxima_1a_%", "volatilidade_20d_anual_%", "volatilidade_60d_anual_%")
+
+
+def historico_do_agente(hist, id_, n=8):
+    """Votos anteriores do agente e o que o ETF fez no pregão seguinte."""
+    feitos, acertos = [], 0
+    for i in range(len(hist) - 1):
+        v = hist[i].get("votos", {}).get(id_)
+        if not v:
+            continue
+        r = hist[i + 1]["fecho"] / hist[i]["fecho"] - 1
+        certo = (v["voto"] == "comprar") == (r > 0)
+        acertos += certo
+        feitos.append({"data": hist[i]["data"], "voto": v["voto"],
+                       "etf_no_dia_seguinte_%": num(r * 100), "acertou": certo})
+    if not feitos:
+        return None
+    return {"dias_avaliados": len(feitos), "acertos": acertos, "ultimos": feitos[-n:]}
+
+
+def reunir_mesa(mercado, hist):
     if not os.environ.get("ANTHROPIC_API_KEY"):
         sys.exit("Falta o segredo ANTHROPIC_API_KEY no GitHub.")
     cliente = anthropic.Anthropic()
     macro, titulos = dados_macro(), manchetes()
 
     entradas = {
-        "grafico": mercado,
+        "grafico": {k: mercado[k] for k in TENDENCIA if k in mercado},
         "noticias": {"manchetes": titulos or ["(sem manchetes disponíveis hoje)"]},
-        "macro": {**macro, "dia_da_semana_hoje": mercado["dia_da_semana_hoje"]},
-        "risco": mercado,
+        "macro": macro,
+        "risco": {k: mercado[k] for k in RISCO if k in mercado},
     }
+
+    def com_historico(id_, dados):
+        h = historico_do_agente(hist, id_)
+        return {**dados, "o_seu_historico": h} if h else dados
+
     votos = {}
     for id_, _, sistema in AGENTES:
-        votos[id_] = perguntar(cliente, sistema, entradas[id_])
+        votos[id_] = perguntar(cliente, sistema, com_historico(id_, entradas[id_]))
         print(f"{id_:>9}: {votos[id_]['voto']:<8} {votos[id_]['motivo']}")
 
     id_, _, sistema = DIABO
-    votos[id_] = perguntar(cliente, sistema, {"mercado": mercado, "macro": macro, "votos_dos_outros": votos})
+    votos[id_] = perguntar(cliente, sistema, com_historico(
+        id_, {"mercado": mercado, "macro": macro, "votos_dos_outros": votos}))
     print(f"{id_:>9}: {votos[id_]['voto']:<8} {votos[id_]['motivo']}")
     return votos
 
@@ -276,7 +319,7 @@ def main():
     if hist and hist[-1]["data"] == data:
         print(f"Já existe análise para {data}; só atualizo o painel.")
     else:
-        votos = reunir_mesa(mercado)
+        votos = reunir_mesa(mercado, hist)
         decisao, regra, compras = decidir(votos)
         print(f"Decisão: {decisao} ({regra})")
         ordem, gasto = executor.executar(decisao, mercado["fecho"], hist)
