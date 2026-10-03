@@ -1,0 +1,43 @@
+name: Carteira ao vivo
+
+on:
+  schedule:
+    # De hora a hora, dias úteis, com a bolsa alemã aberta (07:15 a 16:15 UTC)
+    - cron: "15 7-16 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: carteira
+
+jobs:
+  carteira:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Ler a carteira (só percentagens)
+        run: python carteira.py /tmp/carteira.json
+        env:
+          T212_KEY: ${{ secrets.T212_KEY }}
+          T212_SECRET: ${{ secrets.T212_SECRET }}
+          T212_MODO: ${{ vars.T212_MODO }}
+
+      - name: Publicar no ramo "carteira"
+        run: |
+          git config user.name "mesa-bot"
+          git config user.email "mesa-bot@users.noreply.github.com"
+          git checkout --orphan carteira-novo
+          git rm -rfq --cached .
+          cp /tmp/carteira.json carteira.json
+          git add carteira.json
+          git commit -qm "Carteira $(date -u +%F' '%H:%M)"
+          git push -f origin carteira-novo:carteira
