@@ -60,5 +60,36 @@
   },
   "ordem": "ERRO ao ler a conta (401): \n",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-02",
+  "fecho": 169.38,
+  "decisao": "Comprar",
+  "regra": "4 de 5 votaram comprar",
+  "compras": 4,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias, momentum positivo (0,79% em 20d), volume elevado (1,23x)."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes para análise. Prudência recomenda esperar por informações de mercado."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX abaixo da média anual (15,31 vs 18,11), juros estáveis. Ambiente favorável."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Sem sinais críticos: queda 5d +0,27%, queda diária -0,24%, vol20d/vol60d 0,98x."
+   },
+   "diabo": {
+    "voto": "comprar",
+    "motivo": "Argumento contra (falta notícias) é fraco. Preço acima 3 médias, momentum forte, VIX baixo justificam entrada."
+   }
+  },
+  "ordem": "COMPROU 0.0065 un. (~1,10 €) — mesa votou comprar",
+  "gasto": 1.1
  }
 ]
