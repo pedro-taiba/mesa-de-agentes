@@ -137,7 +137,61 @@ html.ecra .results{overflow:hidden}
 .ecra-full{position:fixed;right:18px;bottom:18px;z-index:5;font-size:15px;padding:10px 16px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
 html.ecra.cheio .ecra-full{display:none}
 html.ecra.parado,html.ecra.parado *{cursor:none}
+
+/* ---- carteira (só percentagens) */
+.carteira{margin:28px 0 0}
+.carteira h2{margin:0 0 6px}
+.cart-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.cart-total{font:800 34px/1 var(--display);font-variant-numeric:tabular-nums}
+.cart-when{font-size:13px;color:var(--muted)}
+.cart-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.cart-list li{display:grid;grid-template-columns:minmax(0,1fr) 34% 64px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.cart-nome{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-nome small{color:var(--muted);margin-left:6px}
+.cart-bar{position:relative;height:8px;background:var(--line);border-radius:4px}
+.cart-bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.cart-bar:after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+.cart-pct{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.sobe{color:#2FA58C}.desce{color:#D0574A}
+.cart-nota{font-size:12px;color:var(--muted);margin:8px 0 0}
+html.ecra .wrap{grid-template-rows:auto auto auto minmax(0,1fr)}
+html.ecra .office{grid-row:1/5}
+html.ecra .carteira{grid-column:2;margin:0}
+html.ecra .carteira h2{font-size:16px;margin:0 0 4px}
+html.ecra .cart-total{font-size:26px}
+html.ecra .cart-list li{padding:4px 0;font-size:13px}
+html.ecra .cart-nota{display:none}
+@media (max-height:860px){html.ecra .agent p{display:none}html.ecra .lead{display:none}html.ecra .cart-total{font-size:22px}}
 </style>
+<script>
+window.CARTEIRA=null; window.__cartHooks=[];
+(function(){
+  const h=location.hostname, partes=location.pathname.split("/").filter(Boolean);
+  const url=h.endsWith(".github.io")&&partes.length
+    ? "https://raw.githubusercontent.com/"+h.split(".")[0]+"/"+partes[0]+"/carteira/carteira.json"
+    : "carteira.json";
+  const fmt=v=>(v>0?"+":v<0?"−":"")+Math.abs(v).toFixed(2).replace(".",",")+"%";
+  window.__fmtPct=fmt;
+  function pintar(c){
+    const box=document.getElementById("carteiraBox"); if(!box) return;
+    box.hidden=false;
+    const tot=document.getElementById("cartTotal"), when=document.getElementById("cartWhen"), ul=document.getElementById("cartList");
+    if(c.erro||c.total_pct==null){tot.textContent="—";tot.className="cart-total";when.textContent=c.erro||"Ainda sem posições";ul.innerHTML="";return;}
+    tot.textContent=fmt(c.total_pct); tot.className="cart-total "+(c.total_pct>=0?"sobe":"desce");
+    const d=new Date(c.atualizado);
+    when.textContent="total desde a compra · atualizado "+d.toLocaleString("pt-PT",{timeZone:"Europe/Lisbon",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    const mx=Math.max(2,...c.posicoes.map(p=>Math.abs(p.pct)));
+    ul.innerHTML=c.posicoes.map(p=>{const w=Math.min(50,Math.abs(p.pct)/mx*50), cls=p.pct>=0?"sobe":"desce";
+      const bar=p.pct>=0?`left:50%;width:${w}%;background:#2FA58C`:`right:50%;width:${w}%;background:#D0574A`;
+      return `<li><span class="cart-nome">${p.nome}<small>${p.peso.toLocaleString("pt-PT")}%</small></span><span class="cart-bar"><i style="${bar}"></i></span><span class="cart-pct ${cls}">${fmt(p.pct)}</span></li>`;}).join("");
+  }
+  async function carregar(){
+    try{const r=await fetch(url+"?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return;
+      const c=await r.json(); window.CARTEIRA=c; pintar(c); window.__cartHooks.forEach(f=>{try{f(c)}catch(e){}});}catch(e){}
+  }
+  window.addEventListener("DOMContentLoaded",carregar); setInterval(carregar,5*60*1000);
+})();
+</script>
 <script>if(/[?&]ecra\b/.test(location.search)){document.documentElement.classList.add("ecra");document.documentElement.dataset.theme="dark";}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -180,6 +234,13 @@ html.ecra.parado,html.ecra.parado *{cursor:none}
     </div>
     <ul class="agents" id="agents"></ul>
   </div>
+
+  <section class="carteira" id="carteiraBox" hidden>
+    <h2>A minha carteira</h2>
+    <div class="cart-top"><span class="cart-total" id="cartTotal">—</span><span class="cart-when" id="cartWhen"></span></div>
+    <ul class="cart-list" id="cartList"></ul>
+    <p class="cart-nota">Só percentagens desde a compra, para não expor valores. Atualiza de hora a hora com a bolsa aberta.</p>
+  </section>
 
   <section class="results">
     <h2>A mesa ganha do ETF parado?</h2>
@@ -362,6 +423,34 @@ const DADOS = {"ativo": "VWCE.DE", "ultima": {"data": "2026-10-02", "fecho": 169
     const qd=new T.Mesh(new T.PlaneGeometry(4.6,3.8),new T.MeshBasicMaterial({map:quadro}));
     qd.rotation.y=Math.PI/2; qd.position.set(-RW/2+0.03,2.6,-1.6); scene.add(qd);
 
+    // ---- telão da carteira (parede esquerda, só percentagens)
+    const cartTex=canvasTex(832,496,(g,w,h)=>{
+      const c=window.CARTEIRA;
+      g.fillStyle="#0B1016";g.fillRect(0,0,w,h);
+      g.fillStyle="#7E8B99";g.font="700 30px sans-serif";g.fillText("CARTEIRA · AO VIVO",30,50);
+      g.fillStyle=(c&&!c.erro)?"#3FB39E":"#5D6B7A";g.beginPath();g.arc(w-44,40,11,0,7);g.fill();
+      if(!c||c.erro||c.total_pct==null){g.fillStyle="#7E8B99";g.font="600 32px sans-serif";
+        g.fillText(c&&c.erro?"Sem ligação à corretora":"A ligar à Trading 212…",30,150);return;}
+      const fmt=window.__fmtPct, up=c.total_pct>=0;
+      g.fillStyle=up?"#3FB39E":"#E0604F";g.font="800 92px sans-serif";g.fillText(fmt(c.total_pct),30,148);
+      g.fillStyle="#7E8B99";g.font="600 24px sans-serif";g.fillText("total desde a compra",30,184);
+      const lst=c.posicoes.slice(0,5), mx=Math.max(2,...lst.map(p=>Math.abs(p.pct)));
+      lst.forEach((p,i)=>{const y=236+i*50, mid=w*0.62;
+        g.fillStyle="#E6ECF2";g.font="600 28px sans-serif";g.fillText(String(p.ticker).slice(0,8),30,y);
+        g.fillStyle="#1E2A36";g.fillRect(mid-150,y-18,300,16);
+        const bw=Math.abs(p.pct)/mx*150; g.fillStyle=p.pct>=0?"#3FB39E":"#E0604F";
+        g.fillRect(p.pct>=0?mid:mid-bw,y-18,bw,16);
+        g.fillStyle="#5D6B7A";g.fillRect(mid-1,y-24,2,28);
+        const t=fmt(p.pct);g.fillStyle=p.pct>=0?"#3FB39E":"#E0604F";g.font="700 28px sans-serif";g.fillText(t,w-30-g.measureText(t).width,y);
+      });
+    });
+    // painel de pé, virado para quem está a ver
+    const cg=new T.Group(); cg.position.set(6.6,0,5.1); cg.rotation.y=Math.atan2(19.6-6.6,18.6-5.1); scene.add(cg);
+    box(4.3,2.65,0.16,0x111418,0,2.35,-0.06,cg);
+    const ctv=new T.Mesh(new T.PlaneGeometry(4.1,2.45),new T.MeshBasicMaterial({map:cartTex})); ctv.position.set(0,2.35,0.03); cg.add(ctv);
+    box(0.18,1.05,0.18,0x1E2024,0,0.52,-0.06,cg); box(1.4,0.08,0.7,0x1E2024,0,0.04,-0.06,cg);
+    window.__cartHooks.push(()=>redraw(cartTex));
+
     // ---- emblema e relógio
     const emb=canvasTex(256,256,(g,w,h)=>{
       g.clearRect(0,0,w,h);g.fillStyle="#E8B931";g.beginPath();
@@ -499,9 +588,12 @@ const DADOS = {"ativo": "VWCE.DE", "ultima": {"data": "2026-10-02", "fecho": 169
           r.legL.rotation.x=r.legR.rotation.x=0; p.y=0;
           if(r.state==="desk"){r.armL.rotation.x=-1.1+Math.sin(r.t*22)*0.12;r.armR.rotation.x=-1.1+Math.cos(r.t*22)*0.12;}
           else if(r.state==="vote"){r.armR.rotation.x+=(-2.8-r.armR.rotation.x)*Math.min(1,dt*8);r.armL.rotation.x*=0.9;}
+          else if(r.state==="festa"){r.armL.rotation.x+=(-2.9-r.armL.rotation.x)*Math.min(1,dt*8);r.armR.rotation.x=r.armL.rotation.x;p.y=Math.abs(Math.sin(r.t*7))*0.35;}
+          else if(r.state==="triste"){r.armL.rotation.x*=0.85;r.armR.rotation.x*=0.85;}
           else{r.armL.rotation.x*=0.85;r.armR.rotation.x*=0.85;}
         }
         r.head.rotation.y=r.state==="desk"&&!walking?Math.sin(r.t*0.7)*0.25:0;
+        r.head.rotation.x+=((r.state==="triste"?0.45:0)-r.head.rotation.x)*Math.min(1,dt*6);
         const blink=((r.t+r.a.id.length)%4)<0.12; r.eyes.forEach(e=>e.scale.y=blink?0.15:1);
       });
       pulse+=dt; ringMat.opacity=0.28+Math.sin(pulse*3)*0.12;
@@ -544,6 +636,15 @@ const DADOS = {"ativo": "VWCE.DE", "ultima": {"data": "2026-10-02", "fecho": 169
         cap.textContent="Reunião encerrada. De volta ao trabalho.";
         await Promise.all(robots.map((r,i)=>{r.state="walk";return go(r,rev(ROUTE[i]).concat([HOME[i]])).then(()=>{r.targetYaw=Math.PI;r.state="desk";});}));
         await sleep(1200);
+        const c=window.CARTEIRA;
+        if(c&&!c.erro&&c.total_pct!=null){
+          const up=c.total_pct>=0;
+          cap.textContent=up?"Carteira a subir "+window.__fmtPct(c.total_pct)+". A mesa comemora!":"Carteira a descer "+window.__fmtPct(c.total_pct)+". Calma: é investimento de longo prazo.";
+          robots.forEach(r=>{r.state=up?"festa":"triste";});
+          await sleep(4500);
+          robots.forEach(r=>{r.targetYaw=Math.PI;r.state="desk";});
+          await sleep(800);
+        }
       }
     })();
   })();
