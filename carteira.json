@@ -1,0 +1,54 @@
+{
+ "atualizado": "2026-10-03T10:10+00:00",
+ "total_pct": 0.27,
+ "posicoes": [
+  {
+   "ticker": "VWCE",
+   "nome": "VWCE",
+   "pct": -0.02,
+   "peso": 20.5
+  },
+  {
+   "ticker": "SXR8",
+   "nome": "SXR8",
+   "pct": 1.13,
+   "peso": 18.2
+  },
+  {
+   "ticker": "EUNL",
+   "nome": "EUNL",
+   "pct": 0.73,
+   "peso": 15.5
+  },
+  {
+   "ticker": "NVDA",
+   "nome": "NVDA",
+   "pct": 2.26,
+   "peso": 11.9
+  },
+  {
+   "ticker": "AAPL",
+   "nome": "AAPL",
+   "pct": 0.73,
+   "peso": 11.7
+  },
+  {
+   "ticker": "JEPI",
+   "nome": "JEPI",
+   "pct": -0.7,
+   "peso": 11.6
+  },
+  {
+   "ticker": "QNT",
+   "nome": "QNT",
+   "pct": -5.17,
+   "peso": 5.5
+  },
+  {
+   "ticker": "VAGF",
+   "nome": "VAGF",
+   "pct": -0.06,
+   "peso": 5.1
+  }
+ ]
+}
