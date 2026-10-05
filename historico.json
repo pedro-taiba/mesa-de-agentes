@@ -91,5 +91,36 @@
   },
   "ordem": "COMPROU 0.0065 un. (~1,10 €) — mesa votou comprar",
   "gasto": 1.1
+ },
+ {
+  "data": "2026-10-05",
+  "fecho": 172.9,
+  "decisao": "Comprar",
+  "regra": "4 de 5 votaram comprar",
+  "compras": 4,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis. Momentum positivo (5d: 2.24%, 20d: 3.05%). Volume elevado confirmando movimento."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes disponíveis para fundamentar decisão de compra."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX 15.5 abaixo da média anual (18.11), juros estáveis. Ambiente favorável."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Sem critérios de veto. Retornos positivos, queda diária e volatilidade dentro dos limites."
+   },
+   "diabo": {
+    "voto": "comprar",
+    "motivo": "Maioria clara (3 vs 1). Argumento contra (sem notícias) é fraco para veto. Técnica e macro sustentam compra."
+   }
+  },
+  "ordem": "COMPROU 0.0064 un. (~1,11 €) — mesa votou comprar",
+  "gasto": 1.11
  }
 ]
