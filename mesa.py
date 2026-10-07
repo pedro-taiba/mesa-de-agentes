@@ -184,6 +184,7 @@ RISCO = ("ativo", "data_ultimo_fecho", "retorno_1d_%", "retorno_5d_%", "maior_qu
 
 def historico_do_agente(hist, id_, n=8):
     """Votos anteriores do agente e o que o ETF fez no pregão seguinte."""
+    hist = validos(hist)
     feitos, acertos = [], 0
     for i in range(len(hist) - 1):
         v = hist[i].get("votos", {}).get(id_)
@@ -239,8 +240,14 @@ def decidir(votos):
 
 # ---------------------------------------------------------------- resultados
 
+def validos(hist):
+    """Entradas que contam para as estatísticas (ignora análises repetidas)."""
+    return [h for h in hist if not h.get("duplicado")]
+
+
 def calcular(hist):
     """Mede cada decisão pelo fecho seguinte (aproximação fecho a fecho)."""
+    hist = validos(hist)
     linhas, curva = [], []
     etf = mesa = 100.0
     acertos = dias = 0
@@ -274,7 +281,7 @@ def pct(x):
 
 
 def gerar_painel(hist):
-    ultimo = hist[-1]
+    ultimo = validos(hist)[-1]
     dados = {"ativo": TICKER, "ultima": ultimo,
              "gasto_total": round(sum(h.get("gasto", 0) for h in hist), 2), **calcular(hist)}
     js = json.dumps(dados, ensure_ascii=False).replace("</", "<\\/")
@@ -316,8 +323,10 @@ def main():
             hist = json.load(f)
 
     data, mercado = dados_mercado()
-    if hist and hist[-1]["data"] == data:
-        print(f"Já existe análise para {data}; só atualizo o painel.")
+    # Só analisa pregões mais recentes do que todos os já analisados. O Yahoo às
+    # vezes "esquece" um dia; sem isto a mesa voltava a analisar um fecho antigo.
+    if hist and data <= max(h["data"] for h in hist):
+        print(f"O fecho de {data} não é mais recente do que a última análise; só atualizo o painel.")
     else:
         votos = reunir_mesa(mercado, hist)
         decisao, regra, compras = decidir(votos)
