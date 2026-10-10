@@ -217,5 +217,36 @@
   },
   "ordem": "Limite do mês atingido (já gastou 3,32 € este mês)",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-09",
+  "fecho": 171.9,
+  "decisao": "Comprar",
+  "regra": "4 de 5 votaram comprar",
+  "compras": 4,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis. Momentum positivo em 5d (1.49%) e 20d (4.02%). Volume baixo relativo."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes disponíveis. Aguardar informações de mercado."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX 18% abaixo da média anual, juros estáveis. Ambiente favorável a risco."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Queda diária -0,59% abaixo de 2%, retorno 5d positivo, volatilidade estável. Nenhum critério de veto acionado."
+   },
+   "diabo": {
+    "voto": "comprar",
+    "motivo": "Maioria clara (3 de 4). Argumento contra mais forte: volume 40% abaixo da média sugere convicção fraca. Insuficiente para vetar."
+   }
+  },
+  "ordem": "Limite do mês atingido (já gastou 3,32 € este mês)",
+  "gasto": 0
  }
 ]
