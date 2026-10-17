@@ -341,5 +341,36 @@
   },
   "ordem": "Limite do mês atingido (já gastou 3,32 € este mês)",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-16",
+  "fecho": 170.94,
+  "decisao": "Esperar",
+  "regra": "Só 1 de 5 votaram comprar",
+  "compras": 1,
+  "votos": {
+   "grafico": {
+    "voto": "esperar",
+    "motivo": "Preço colado à média 20d após queda 5d. Momentum curto negativo, volume elevado sem confirmação de força."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes. Histórico mostra acertos com esperar em mercados incertos."
+   },
+   "macro": {
+    "voto": "esperar",
+    "motivo": "VIX acima da média (+11%) e variação de 5 dias elevada (5,15). Juros estáveis. Aguardar normalização."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Nenhum critério de veto acionado. Quedas e volatilidade abaixo dos limites."
+   },
+   "diabo": {
+    "voto": "esperar",
+    "motivo": "VIX 11% acima média histórica sinaliza nervosismo. Maioria espera; argumento risco é fraco dado contexto macro."
+   }
+  },
+  "ordem": "Sem compra hoje",
+  "gasto": 0
  }
 ]
