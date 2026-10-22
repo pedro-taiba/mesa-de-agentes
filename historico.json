@@ -434,5 +434,36 @@
   },
   "ordem": "Sem compra hoje",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-21",
+  "fecho": 171.32,
+  "decisao": "Comprar",
+  "regra": "3 de 5 votaram comprar",
+  "compras": 3,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis. Retorno 20d positivo (+0.75%). Dinâmica de recuperação."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes. Histórico mostra acertos consistentes com voto esperar em contexto incerto."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX ligeiramente acima da média mas estável. Juros 10a recuam. Sem sinais adversos."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Nenhum critério de veto acionado. Risco controlado, volatilidade 20d abaixo do limite."
+   },
+   "diabo": {
+    "voto": "esperar",
+    "motivo": "Maioria compra, mas retorno 5d negativo (-0.67%), volume fraco (0.69x), histórico mostra acertos com esperar em contextos incertos."
+   }
+  },
+  "ordem": "Limite do mês atingido (já gastou 3,32 € este mês)",
+  "gasto": 0
  }
 ]
