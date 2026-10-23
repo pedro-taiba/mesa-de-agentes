@@ -1,0 +1,34 @@
+{
+ "atualizado": "2026-10-23T17:53+00:00",
+ "conta": 27.78,
+ "investido": 27.77,
+ "dinheiro": 0.01,
+ "ganho": -0.19,
+ "total_pct": -0.69,
+ "posicoes": [
+  {
+   "ticker": "VWCE",
+   "nome": "Vanguard FTSE All-World (Acc)",
+   "valor": 19.46,
+   "ganho": -0.12,
+   "pct": -0.61,
+   "peso": 70.1
+  },
+  {
+   "ticker": "CSPX",
+   "nome": "iShares Core S&P 500 (Acc)",
+   "valor": 5.56,
+   "ganho": -0.03,
+   "pct": -0.59,
+   "peso": 20.0
+  },
+  {
+   "ticker": "EQEU",
+   "nome": "Invesco EQQQ Nasdaq-100 (Acc)",
+   "valor": 2.74,
+   "ganho": -0.04,
+   "pct": -1.47,
+   "peso": 9.9
+  }
+ ]
+}
