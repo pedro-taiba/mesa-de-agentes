@@ -527,5 +527,36 @@
   },
   "ordem": "Sem compra hoje",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-26",
+  "fecho": 170.0,
+  "decisao": "Esperar",
+  "regra": "Só 2 de 5 votaram comprar",
+  "compras": 2,
+  "votos": {
+   "grafico": {
+    "voto": "esperar",
+    "motivo": "Preço abaixo da média 20d, momentum 5d negativo. Aguardar maior clareza."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes. Manter cautela até haver clareza sobre direção dos mercados."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX ligeiramente abaixo da média anual, juros em queda. Ambiente favorável."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Nenhum critério de veto acionado. Volatilidade 20d (9,31%) abaixo de 1,5× volatilidade 60d (14,22%). Queda 5d (-0,51%) e diária (+0,41%) dentro dos limites."
+   },
+   "diabo": {
+    "voto": "esperar",
+    "motivo": "Preço 0,73% abaixo média 20d, momentum 5d negativo persiste. Macro favorável insuficiente contra fraqueza técnica."
+   }
+  },
+  "ordem": "Sem compra hoje",
+  "gasto": 0
  }
 ]
