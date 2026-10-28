@@ -558,5 +558,36 @@
   },
   "ordem": "Sem compra hoje",
   "gasto": 0
+ },
+ {
+  "data": "2026-10-27",
+  "fecho": 171.68,
+  "decisao": "Comprar",
+  "regra": "3 de 5 votaram comprar",
+  "compras": 3,
+  "votos": {
+   "grafico": {
+    "voto": "comprar",
+    "motivo": "Preço acima das três médias móveis; momentum positivo em 5d e 20d; volume baixo mas estrutura altista mantida."
+   },
+   "noticias": {
+    "voto": "esperar",
+    "motivo": "Sem manchetes relevantes. Histórico recente favorável a esperar em dias sem notícias."
+   },
+   "macro": {
+    "voto": "comprar",
+    "motivo": "VIX abaixo da média anual, juros estáveis. Ambiente favorável para risco."
+   },
+   "risco": {
+    "voto": "comprar",
+    "motivo": "Nenhum critério de veto acionado. Risco controlado, ETF com retorno positivo recente."
+   },
+   "diabo": {
+    "voto": "esperar",
+    "motivo": "Volume 32% abaixo da média; maioria vota comprar mas histórico mostra acertos ao esperar em dias laterais."
+   }
+  },
+  "ordem": "Limite do mês atingido (já gastou 3,32 € este mês)",
+  "gasto": 0
  }
 ]
