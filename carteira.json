@@ -1,0 +1,74 @@
+{
+ "atualizado": "2026-10-30T19:29+00:00",
+ "conta": 289.92,
+ "investido": 289.18,
+ "dinheiro": 0.74,
+ "ganho": -3.98,
+ "total_pct": -1.36,
+ "posicoes": [
+  {
+   "ticker": "VWCE",
+   "nome": "Vanguard FTSE All-World (Acc)",
+   "valor": 110.9,
+   "ganho": -1.86,
+   "pct": -1.65,
+   "peso": 38.3
+  },
+  {
+   "ticker": "SXR5",
+   "nome": "iShares MSCI Japan (Acc)",
+   "valor": 51.27,
+   "ganho": -1.43,
+   "pct": -2.72,
+   "peso": 17.7
+  },
+  {
+   "ticker": "SXRW",
+   "nome": "iShares Core FTSE 100 (Acc)",
+   "valor": 35.24,
+   "ganho": 0.13,
+   "pct": 0.37,
+   "peso": 12.2
+  },
+  {
+   "ticker": "IUSN",
+   "nome": "iShares MSCI World Small Cap (Acc)",
+   "valor": 31.02,
+   "ganho": -0.29,
+   "pct": -0.93,
+   "peso": 10.7
+  },
+  {
+   "ticker": "CSPX",
+   "nome": "iShares Core S&P 500 (Acc)",
+   "valor": 27.64,
+   "ganho": -0.46,
+   "pct": -1.62,
+   "peso": 9.6
+  },
+  {
+   "ticker": "VAGF",
+   "nome": "Vanguard Global Aggregate Bond (Acc)",
+   "valor": 25.16,
+   "ganho": 0.03,
+   "pct": 0.12,
+   "peso": 8.7
+  },
+  {
+   "ticker": "EUNH",
+   "nome": "iShares Core EUR Govt Bond (Dist)",
+   "valor": 5.27,
+   "ganho": 0.01,
+   "pct": 0.14,
+   "peso": 1.8
+  },
+  {
+   "ticker": "EQEU",
+   "nome": "Invesco EQQQ Nasdaq-100 (Acc)",
+   "valor": 2.68,
+   "ganho": -0.1,
+   "pct": -3.7,
+   "peso": 0.9
+  }
+ ]
+}
